@@ -10,7 +10,6 @@ export default function Home() {
         style={{ background: 'linear-gradient(45deg, #00BFFF, #0099CC)' }}
       >
         <div className="flex flex-col justify-center h-full">
-          {/* --- تم التعديل هنا --- */}
           <h1 className="text-4xl font-bold mb-2 text-center text-white">
             Welcome to DH Messages!
           </h1>
@@ -20,15 +19,16 @@ export default function Home() {
           <p className="text-sm opacity-90 mx-auto text-center text-white">
             Developed by Haider Al-Saadi.
           </p>
-          {/* --- تم تغيير رابط وحقوق GitHub هنا --- */}
+          {/* --- تم إصلاح الخطأ هنا --- */}
           <a
-            href="https://github.com/DH-KING" // <-- تم وضع رابط حسابك على GitHub
-            className="mt-8 bg-gray-800 hover:bg-cyan-700 text-white py-2 px-8 rounded-full font-semibold shadow-md transition duration-300 ease-in-out w-auto max-w-lg mx-auto"
+            href="https://github.com/DH-KING"
+            // تم تغيير علامات الاقتباس لحل المشكلة
             title="Developer's GitHub"
+            className="mt-8 bg-gray-800 hover:bg-cyan-700 text-white py-2 px-8 rounded-full font-semibold shadow-md transition duration-300 ease-in-out w-auto max-w-lg mx-auto"
             target="_blank"
-            rel="noopener noreferrer" // Added for security
+            rel="noopener noreferrer"
           >
-            Developer's GitHub
+            Developer&apos;s GitHub
           </a>
         </div>
       </div>
@@ -43,13 +43,9 @@ export default function Home() {
             width={64}
             src="/images/logo.png"
           />
-
-          {/* --- تم التعديل هنا --- */}
           <h2 className="mt-6 text-center text-3xl font-bold text-gray-900 tracking-tight">
             Join DH Messages Today!
           </h2>
-
-          {/* Auth Form */}
           <AuthForm />
         </div>
       </div>
