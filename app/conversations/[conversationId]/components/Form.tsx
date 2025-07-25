@@ -36,14 +36,16 @@ const Form = () => {
     });
   };
 
+  // --- هذا هو التعديل الجديد ---
+  // سيستخدم متغير البيئة، وإذا لم يجده، سيستخدم القيمة الصحيحة كبديل
+  const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "a0risrqn";
+
   return (
     <div className="py-4 px-4 bg-white border-t flex items-center gap-2 lg:gap-4 w-full">
       <CldUploadButton
         options={{ maxFiles: 1 }}
         onUpload={handleUpload}
-        // --- هذا هو السطر الذي تم تعديله ---
-        // يستخدم الآن متغير البيئة بدلاً من كتابة الاسم مباشرة
-        uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET}
+        uploadPreset={uploadPreset} // استخدام المتغير الجديد
       >
         <HiPhoto size={30} className="text-cyan-500" />
       </CldUploadButton>
