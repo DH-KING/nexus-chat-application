@@ -60,6 +60,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
       .finally(() => setIsLoading(false));
   };
 
+  // --- تم إضافة هذا السطر ---
+  const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
+
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -95,10 +98,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                     alt="avatar"
                     className="rounded-full"
                   />
+                  {/* --- تم تعديل هذا الجزء --- */}
                   <CldUploadButton
                     options={{ maxFiles: 1 }}
                     onUpload={handleUpload}
-                    uploadPreset="jkyytcex"
+                    uploadPreset={uploadPreset} // سيستخدم الآن المتغير من Vercel
                   >
                     <Button disabled={isLoading} type="button" secondary>
                       Change
