@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { find } from 'lodash';
 import { useSession } from 'next-auth/react';
 
 import { FullMessageType } from '@/app/types';
@@ -27,7 +26,7 @@ const Body: React.FC<BodyProps> = ({ initialMessages = [] }) => {
   }, [conversationId, status]);
 
   useEffect(() => {
-    if (status !== 'authenticated') {
+    if (status !== 'authenticated' || !conversationId) {
       return;
     }
 
@@ -36,18 +35,29 @@ const Body: React.FC<BodyProps> = ({ initialMessages = [] }) => {
 
     const messageHandler = (message: FullMessageType) => {
       axios.post(`/api/conversations/${conversationId}/seen`);
-      setMessages((current) => {
-        if (find(current, { id: message.id })) {
-          return current;
+
+      // --- هذا هو الجزء الذي تم تبسيطه ---
+      // نستخدم دالة تحديث بسيطة بدون lodash
+      setMessages((currentMessages) => {
+        // نتحقق يدويًا إذا كانت الرسالة موجودة بالفعل
+        const isMessageAlreadyPresent = currentMessages.some(
+          (existingMessage) => existingMessage.id === message.id
+        );
+
+        if (isMessageAlreadyPresent) {
+          return currentMessages; // إذا كانت موجودة، لا تفعل شيئًا
         }
-        return [...current, message];
+
+        // إذا لم تكن موجودة، أضفها إلى القائمة
+        return [...currentMessages, message];
       });
+
       bottomRef?.current?.scrollIntoView();
     };
 
     const updateMessageHandler = (newMessage: FullMessageType) => {
-      setMessages((current) =>
-        current.map((currentMessage) => {
+      setMessages((currentMessages) =>
+        currentMessages.map((currentMessage) => {
           if (currentMessage.id === newMessage.id) {
             return newMessage;
           }
@@ -59,11 +69,9 @@ const Body: React.FC<BodyProps> = ({ initialMessages = [] }) => {
     pusherClient.bind('messages:new', messageHandler);
     pusherClient.bind('message:update', updateMessageHandler);
 
-    // --- هذا هو الجزء الذي تم تصحيحه ---
     return () => {
       pusherClient.unsubscribe(conversationId);
       pusherClient.unbind('messages:new', messageHandler);
-      // تم تصحيح bind إلى unbind
       pusherClient.unbind('message:update', updateMessageHandler);
     };
   }, [conversationId, status]);
