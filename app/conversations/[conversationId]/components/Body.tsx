@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { find } from 'lodash';
+import { useSession } from 'next-auth/react'; // <-- 1. استيراد useSession
 
 import { FullMessageType } from '@/app/types';
 import useConversation from '@/app/hooks/useConversation';
@@ -17,47 +18,32 @@ const Body: React.FC<BodyProps> = ({ initialMessages = [] }) => {
   const bottomRef = useRef<HTMLDivElement>(null);
   const [messages, setMessages] = useState(initialMessages);
   const { conversationId } = useConversation();
+  const { data: session } = useSession(); // <-- 2. الحصول على بيانات الجلسة
 
-  // 1. التأكد من أن المستخدم رأى الرسائل عند فتح المحادثة
-  useEffect(() => {
-    axios.post(`/api/conversations/${conversationId}/seen`);
-  }, [conversationId]);
+  // ... (بقية الكود يبقى كما هو)
 
-  // 2. الاستماع لأحداث Pusher
+  // الاستماع لأحداث Pusher
   useEffect(() => {
-    // التأكد من وجود conversationId قبل الاشتراك
-    if (!conversationId) {
+    // --- 3. الشرط الجديد: لا تقم بتشغيل أي شيء إذا لم تكتمل المصادقة ---
+    if (!session?.user?.email || !conversationId) {
       return;
     }
 
-    // الاشتراك في قناة المحادثة
     pusherClient.subscribe(conversationId);
     bottomRef?.current?.scrollIntoView();
 
-    // معالج الرسائل الجديدة
     const messageHandler = (message: FullMessageType) => {
-      // طباعة في المتصفح للتأكد من وصول الإشعار
-      console.log('PUSHER: New message received!', message);
-      
-      // إرسال طلب لتحديث حالة "تمت القراءة"
       axios.post(`/api/conversations/${conversationId}/seen`);
-
-      // تحديث قائمة الرسائل (بطريقة آمنة)
       setMessages((current) => {
         if (find(current, { id: message.id })) {
           return current;
         }
         return [...current, message];
       });
-
       bottomRef?.current?.scrollIntoView();
     };
 
-    // معالج تحديث الرسائل (مثلاً، تحديث حالة "تمت القراءة")
     const updateMessageHandler = (newMessage: FullMessageType) => {
-      // طباعة في المتصفح للتأكد من وصول التحديث
-      console.log('PUSHER: Message update received!', newMessage);
-
       setMessages((current) =>
         current.map((currentMessage) => {
           if (currentMessage.id === newMessage.id) {
@@ -68,17 +54,18 @@ const Body: React.FC<BodyProps> = ({ initialMessages = [] }) => {
       );
     };
 
-    // ربط المعالجات بالأحداث
     pusherClient.bind('messages:new', messageHandler);
     pusherClient.bind('message:update', updateMessageHandler);
 
-    // دالة التنظيف عند مغادرة الصفحة
     return () => {
       pusherClient.unsubscribe(conversationId);
       pusherClient.unbind('messages:new', messageHandler);
       pusherClient.unbind('message:update', updateMessageHandler);
     };
-  }, [conversationId]);
+    // --- 4. إضافة session كـ dependency ---
+  }, [conversationId, session?.user?.email]);
+
+  // ... (بقية الكود يبقى كما هو)
 
   return (
     <div className="flex-1 overflow-y-auto">
