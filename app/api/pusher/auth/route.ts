@@ -5,24 +5,29 @@ import { pusherServer } from '@/app/libs/pusher';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 export async function POST(request: NextRequest) {
-  // 1. الحصول على الجلسة باستخدام الطريقة القوية
+  // 1. الحصول على الجلسة
   const session = await getServerSession(authOptions);
 
-  // 2. التحقق من وجود مستخدم مسجل الدخول
+  // 2. التحقق من وجود مستخدم
   if (!session?.user?.email) {
     return new NextResponse('Unauthorized', { status: 401 });
   }
 
-  // 3. الحصول على بيانات الطلب
-  const socketId = (await request.formData()).get('socket_id') as string;
-  const channel = (await request.formData()).get('channel_name') as string;
+  // --- هذا هو الجزء الذي تم إصلاحه ---
+  // 3. قراءة جسم الطلب مرة واحدة فقط وتخزينه في متغير
+  const body = await request.formData();
+  
+  // 4. استخدام المتغير للحصول على البيانات المطلوبة
+  const socketId = body.get('socket_id') as string;
+  const channel = body.get('channel_name') as string;
 
-  // 4. إنشاء بيانات المصادقة
+  // 5. إنشاء بيانات المصادقة لـ Pusher
   const data = {
-    user_id: session.user.email, // استخدام البريد الإلكتروني كمعرف للمستخدم
+    user_id: session.user.email,
   };
 
-  // 5. توقيع الطلب وإرسال الرد
+  // 6. توقيع الطلب وإرسال الرد
   const authResponse = pusherServer.authorizeChannel(socketId, channel, data);
+  
   return NextResponse.json(authResponse);
 }
