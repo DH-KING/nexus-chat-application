@@ -27,7 +27,7 @@ const AuthForm = () => {
 
   const toggleVariant = useCallback(() => {
     setVariant((prev) => (prev === 'LOGIN' ? 'REGISTER' : 'LOGIN'));
-  }, [variant]);
+  }, []); // تم إزالة 'variant' من هنا لأنها غير ضرورية
 
   const {
     register,
@@ -48,7 +48,7 @@ const AuthForm = () => {
           signIn('credentials', data);
         })
         .catch((err) => {
-          const errorCode = err.response.status;
+          const errorCode = err.response?.status; // إضافة '?' للأمان
 
           if (errorCode === 400) {
             toast.error('Please enter your name, email and password!');
@@ -72,7 +72,8 @@ const AuthForm = () => {
           }
 
           if (res?.ok && !res?.error) {
-            toast.success('Entering Nexus!');
+            // --- تم التعديل هنا ---
+            toast.success('Welcome to DH Messages!');
             router.push('/users');
           }
         })
@@ -92,7 +93,8 @@ const AuthForm = () => {
         }
 
         if (res?.ok && !res?.error) {
-          toast.success('Entering Nexus!');
+          // --- تم التعديل هنا ---
+          toast.success('Welcome to DH Messages!');
         }
       })
       .finally(() => setIsLoading(false));
@@ -169,9 +171,10 @@ const AuthForm = () => {
         {/* Toggle Login/Register */}
         <div className="flex gap-2 justify-center text-sm mt-6 px-2 text-gray-500">
           <span>
+            {/* --- تم التعديل هنا --- */}
             {variant === 'REGISTER'
               ? 'Already have an account?'
-              : 'New to Nexus?'}
+              : 'New to DH Messages?'}
           </span>
           <button
             type="button"
