@@ -7,14 +7,24 @@ import ActiveStatus from './components/ActiveStatus';
 
 const inter = Inter({ subsets: ['latin'] });
 
+// --- تم تعديل كل البيانات الوصفية هنا ---
 export const metadata: Metadata = {
-  title: 'Nexus - Your Ultimate Chat Experience',
-  description:
-    'Nexus is a revolutionary chat application that transcends traditional messaging. Immerse yourself in rich, dynamic conversations, collaborate effortlessly, and forge meaningful connections with friends and colleagues. Join Nexus today and experience a new era of communication.',
-  keywords: [],
+  // 1. تغيير العنوان الرئيسي الذي يظهر في تبويب المتصفح
+  title: 'DH Messages',
+
+  // 2. تغيير الوصف الذي يظهر في محركات البحث ونافذة تثبيت التطبيق
+  description: 'The official real-time chat application by Haider Al-Saadi.',
+
+  // 3. إضافة اسمك كمؤلف/مطور
+  authors: [{ name: 'Haider Al-Saadi' }],
+
+  // 4. إضافة كلمات مفتاحية لتحسين البحث
+  keywords: ['DH Messages', 'chat', 'real-time', 'messenger', 'Haider Al-Saadi'],
+
+  // 5. تغيير حساب تويتر (يمكنك وضع حسابك الحقيقي هنا)
   twitter: {
     card: 'summary_large_image',
-    creator: '@yodkwtf',
+    creator: '@DH_KING_Dev', // <-- مثال، يمكنك تغييره
   },
 };
 
