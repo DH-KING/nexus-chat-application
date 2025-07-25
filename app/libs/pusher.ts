@@ -2,17 +2,17 @@ import PusherServer from 'pusher';
 import PusherClient from 'pusher-js';
 
 // --- تهيئة خادم Pusher ---
-// سيقرأ الآن الـ cluster من متغيرات البيئة
+// تم تعديل هذا الجزء لكتابة الـ cluster مباشرة لتجاوز مشاكل Vercel
 export const pusherServer = new PusherServer({
   appId: process.env.PUSHER_APP_ID!,
   key: process.env.NEXT_PUBLIC_PUSHER_APP_KEY!,
   secret: process.env.PUSHER_SECRET!,
-  cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!, // تم التعديل هنا
+  cluster: 'us2', // <<<--- تم التعديل هنا: القيمة مكتوبة بشكل مباشر
   useTLS: true,
 });
 
 // --- تهيئة عميل Pusher ---
-// سيقرأ الآن الـ cluster من متغيرات البيئة
+// تم تعديل هذا الجزء لكتابة الـ cluster مباشرة لتجاوز مشاكل Vercel
 export const pusherClient = new PusherClient(
   process.env.NEXT_PUBLIC_PUSHER_APP_KEY!,
   {
@@ -20,6 +20,6 @@ export const pusherClient = new PusherClient(
       endpoint: '/api/pusher/auth',
       transport: 'ajax',
     },
-    cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!, // تم التعديل هنا
+    cluster: 'us2', // <<<--- تم التعديل هنا: القيمة مكتوبة بشكل مباشر
   }
 );
