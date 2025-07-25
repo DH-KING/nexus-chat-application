@@ -1,34 +1,48 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { find } from 'lodash';
+
 import { FullMessageType } from '@/app/types';
 import useConversation from '@/app/hooks/useConversation';
+import { pusherClient } from '@/app/libs/pusher';
 import MessageBox from './MessageBox';
 import axios from 'axios';
-import { pusherClient } from '@/app/libs/pusher';
-import { find } from 'lodash';
 
 interface BodyProps {
   initialMessages: FullMessageType[];
 }
 
-const Body: React.FC<BodyProps> = ({ initialMessages }) => {
-  const [messages, setMessages] = useState(initialMessages);
+const Body: React.FC<BodyProps> = ({ initialMessages = [] }) => {
   const bottomRef = useRef<HTMLDivElement>(null);
-
+  const [messages, setMessages] = useState(initialMessages);
   const { conversationId } = useConversation();
 
+  // 1. التأكد من أن المستخدم رأى الرسائل عند فتح المحادثة
   useEffect(() => {
     axios.post(`/api/conversations/${conversationId}/seen`);
   }, [conversationId]);
 
+  // 2. الاستماع لأحداث Pusher
   useEffect(() => {
+    // التأكد من وجود conversationId قبل الاشتراك
+    if (!conversationId) {
+      return;
+    }
+
+    // الاشتراك في قناة المحادثة
     pusherClient.subscribe(conversationId);
     bottomRef?.current?.scrollIntoView();
 
+    // معالج الرسائل الجديدة
     const messageHandler = (message: FullMessageType) => {
+      // طباعة في المتصفح للتأكد من وصول الإشعار
+      console.log('PUSHER: New message received!', message);
+      
+      // إرسال طلب لتحديث حالة "تمت القراءة"
       axios.post(`/api/conversations/${conversationId}/seen`);
 
+      // تحديث قائمة الرسائل (بطريقة آمنة)
       setMessages((current) => {
         if (find(current, { id: message.id })) {
           return current;
@@ -39,7 +53,11 @@ const Body: React.FC<BodyProps> = ({ initialMessages }) => {
       bottomRef?.current?.scrollIntoView();
     };
 
+    // معالج تحديث الرسائل (مثلاً، تحديث حالة "تمت القراءة")
     const updateMessageHandler = (newMessage: FullMessageType) => {
+      // طباعة في المتصفح للتأكد من وصول التحديث
+      console.log('PUSHER: Message update received!', newMessage);
+
       setMessages((current) =>
         current.map((currentMessage) => {
           if (currentMessage.id === newMessage.id) {
@@ -50,14 +68,14 @@ const Body: React.FC<BodyProps> = ({ initialMessages }) => {
       );
     };
 
+    // ربط المعالجات بالأحداث
     pusherClient.bind('messages:new', messageHandler);
     pusherClient.bind('message:update', updateMessageHandler);
 
-    // --- هذا هو الجزء الذي تم تصحيحه ---
+    // دالة التنظيف عند مغادرة الصفحة
     return () => {
       pusherClient.unsubscribe(conversationId);
       pusherClient.unbind('messages:new', messageHandler);
-      // تم تصحيح bind إلى unbind
       pusherClient.unbind('message:update', updateMessageHandler);
     };
   }, [conversationId]);
@@ -71,7 +89,7 @@ const Body: React.FC<BodyProps> = ({ initialMessages }) => {
           data={message}
         />
       ))}
-      <div ref={bottomRef} className="pt-24" />
+      <div className="pt-24" ref={bottomRef} />
     </div>
   );
 };
