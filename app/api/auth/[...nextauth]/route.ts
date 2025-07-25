@@ -15,7 +15,6 @@ export const authOptions: AuthOptions = {
       clientSecret: process.env.GITHUB_SECRET as string,
     }),
     GoogleProvider({
-      // تم تصحيح أسماء المتغيرات هنا
       clientId: process.env.GOOGLE_CLIENT_ID as string,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     }),
@@ -29,24 +28,19 @@ export const authOptions: AuthOptions = {
         if (!credentials?.email || !credentials?.password) {
           throw new Error('Invalid credentials');
         }
-
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
         });
-
         if (!user || !user?.hashedPassword) {
           throw new Error('Invalid credentials');
         }
-
         const isPasswordCorrect = await bcrypt.compare(
           credentials.password,
           user.hashedPassword
         );
-
         if (!isPasswordCorrect) {
           throw new Error('Invalid credentials');
         }
-
         return user;
       },
     }),
@@ -56,6 +50,21 @@ export const authOptions: AuthOptions = {
     strategy: 'jwt',
   },
   secret: process.env.NEXTAUTH_SECRET,
+
+  // --- هذا هو التعديل الأخير والمهم ---
+  // نجبر NextAuth على استخدام أسماء كوكيز محددة ومتوافقة
+  cookies: {
+    sessionToken: {
+      name: `__Secure-next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: true,
+        domain: process.env.NEXTAUTH_URL?.replace(/https?:\/\//, ''),
+      },
+    },
+  },
 };
 
 const handler = NextAuth(authOptions);
