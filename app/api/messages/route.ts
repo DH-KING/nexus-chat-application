@@ -1,7 +1,7 @@
 import getCurrentUser from '@/app/actions/getCurrentUser';
 import { NextResponse } from 'next/server';
 import prisma from '@/app/libs/prismadb';
-import { pusherServer } from '@/app/lib/pusher'; // <<<--- هذا هو السطر الذي تم تصحيحه
+import { pusherServer } from '@/app/libs/pusher'; // <<<--- هذا هو السطر الذي تم تصحيحه
 
 export async function POST(request: Request) {
   try {
