@@ -41,7 +41,9 @@ const Form = () => {
       <CldUploadButton
         options={{ maxFiles: 1 }}
         onUpload={handleUpload}
-        uploadPreset="a0rlsrqn" // تم تعديل هذه القيمة إلى "a0rlsrqn"
+        // --- هذا هو السطر الذي تم تعديله ---
+        // يستخدم الآن متغير البيئة بدلاً من كتابة الاسم مباشرة
+        uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET}
       >
         <HiPhoto size={30} className="text-cyan-500" />
       </CldUploadButton>
@@ -66,4 +68,5 @@ const Form = () => {
     </div>
   );
 };
+
 export default Form;
